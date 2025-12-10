@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Forward Pass Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .equations-key {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .equations-key h2 {
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .equation-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .equation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .equation-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .equation-formula {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #764ba2;
+            font-size: 14px;
+        }
+
+        .networks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .network-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .network-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .network-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .network-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .difficulty {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .network-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .network-diagram {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+
+        .inputs-section {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-item {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #f8f9fa;
+            pointer-events: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .calculate-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .reveal-btn {
+            background: #764ba2;
+            color: white;
+        }
+
+        .reveal-btn:hover {
+            background: #653a7f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(118, 75, 162, 0.4);
+        }
+
+        .reset-btn {
+            background: #ccc;
+            color: #333;
+        }
+
+        .reset-btn:hover {
+            background: #bbb;
+            transform: translateY(-2px);
+        }
+
+        .answer-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .answer-section.visible {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .answer-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .calculation-steps {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .step {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border-left: 3px solid #764ba2;
+        }
+
+        .final-answer {
+            margin-top: 12px;
+            padding: 12px;
+            background: #e8f5e9;
+            border-left: 3px solid #4caf50;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .networks-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Neural Network Forward Pass Tutorial</h1>
+            <div class="equations-key">
+                <h2>Activation Functions</h2>
+                <div class="equation-item">
+                    <div class="equation-name">ReLU (Rectified Linear Unit)</div>
+                    <div class="equation-formula">ReLU(x) = max(0, x)</div>
+                    <p style="font-size: 12px; margin-top: 8px; color: #666;">Returns 0 if input is negative, otherwise returns the input value</p>
+                </div>
+                <div class="equation-item">
+                    <div class="equation-name">Sigmoid</div>
+                    <div class="equation-formula">σ(x) = 1 / (1 + e^(-x))</div>
+                    <p style="font-size: 12px; margin-top: 8px; color: #666;">Squashes output to a value between 0 and 1</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="networks-grid">
+            <!-- Network 1: Simple Linear (Bias + x0) -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 1</span>
+                    <span class="difficulty">Easy</span>
+                </div>
+                <div class="network-description">
+                    Linear output: bias + (weight × x₀) = ŷ
+                </div>
+                <div class="network-diagram">
+bias → ⊕
+         ├→ ŷ
+x₀ → [w] → ⊕
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Bias:</label>
+                        <input type="number" class="network1-bias" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight (w):</label>
+                        <input type="number" class="network1-weight" step="0.01" min="0" max="1" value="0.3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input (x₀):</label>
+                        <input type="number" class="network1-x0" step="0.01" min="0" max="1" value="0.7">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network1-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork1()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork1()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork1()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer1">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps1"></div>
+                </div>
+            </div>
+
+            <!-- Network 2: Two Inputs Linear -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 2</span>
+                    <span class="difficulty">Easy</span>
+                </div>
+                <div class="network-description">
+                    Linear with two inputs: bias + (w₁×x₀) + (w₂×x₁) = ŷ
+                </div>
+                <div class="network-diagram">
+bias → ⊕
+         ├→ ŷ
+x₀ → [w₁] → ⊕
+         ├→ ŷ
+x₁ → [w₂] → ⊕
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Bias:</label>
+                        <input type="number" class="network2-bias" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight 1 (w₁) & Input 1 (x₀):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₁</label>
+                                <input type="number" class="network2-w1" step="0.01" min="0" max="1" value="0.3">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">x₀</label>
+                                <input type="number" class="network2-x0" step="0.01" min="0" max="1" value="0.6">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight 2 (w₂) & Input 2 (x₁):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₂</label>
+                                <input type="number" class="network2-w2" step="0.01" min="0" max="1" value="0.4">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">x₁</label>
+                                <input type="number" class="network2-x1" step="0.01" min="0" max="1" value="0.8">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network2-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork2()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork2()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork2()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer2">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps2"></div>
+                </div>
+            </div>
+
+            <!-- Network 3: Single Input with Sigmoid -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 3</span>
+                    <span class="difficulty">Medium</span>
+                </div>
+                <div class="network-description">
+                    Sigmoid activation: σ(bias + w×x₀) = ŷ
+                </div>
+                <div class="network-diagram">
+bias → ⊕
+         ├→ sigmoid → ŷ
+x₀ → [w] → ⊕
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Bias:</label>
+                        <input type="number" class="network3-bias" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight (w):</label>
+                        <input type="number" class="network3-weight" step="0.01" min="0" max="1" value="0.3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input (x₀):</label>
+                        <input type="number" class="network3-x0" step="0.01" min="0" max="1" value="0.7">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network3-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork3()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork3()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork3()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer3">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps3"></div>
+                </div>
+            </div>
+
+            <!-- Network 4: Single Input with ReLU -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 4</span>
+                    <span class="difficulty">Medium</span>
+                </div>
+                <div class="network-description">
+                    ReLU activation: max(0, bias + w×x₀) = ŷ
+                </div>
+                <div class="network-diagram">
+bias → ⊕
+         ├→ ReLU → ŷ
+x₀ → [w] → ⊕
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Bias:</label>
+                        <input type="number" class="network4-bias" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight (w):</label>
+                        <input type="number" class="network4-weight" step="0.01" min="0" max="1" value="0.3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input (x₀):</label>
+                        <input type="number" class="network4-x0" step="0.01" min="0" max="1" value="0.7">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network4-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork4()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork4()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork4()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer4">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps4"></div>
+                </div>
+            </div>
+
+            <!-- Network 5: ReLU then Sigmoid -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 5</span>
+                    <span class="difficulty">Hard</span>
+                </div>
+                <div class="network-description">
+                    Two layers: ReLU → Sigmoid: σ(bias₂ + w₂ × ReLU(bias₁ + w₁×x₀)) = ŷ
+                </div>
+                <div class="network-diagram">
+bias₁ → ⊕
+         ├→ ReLU → ⊕
+x₀ → [w₁] → ⊕  └→ [w₂] → ⊕
+                   ↑
+                bias₂ → ──┘
+                         ├→ sigmoid → ŷ
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Layer 1 - Bias:</label>
+                        <input type="number" class="network5-bias1" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Layer 1 - Weight (w₁):</label>
+                        <input type="number" class="network5-w1" step="0.01" min="0" max="1" value="0.3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input (x₀):</label>
+                        <input type="number" class="network5-x0" step="0.01" min="0" max="1" value="0.7">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Layer 2 - Bias:</label>
+                        <input type="number" class="network5-bias2" step="0.01" min="0" max="1" value="0.4">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Layer 2 - Weight (w₂):</label>
+                        <input type="number" class="network5-w2" step="0.01" min="0" max="1" value="0.6">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network5-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork5()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork5()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork5()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer5">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps5"></div>
+                </div>
+            </div>
+
+            <!-- Network 6: Three Parallel ReLU then Sigmoid -->
+            <div class="network-card">
+                <div class="network-header">
+                    <span class="network-number">Network 6</span>
+                    <span class="difficulty">Hard</span>
+                </div>
+                <div class="network-description">
+                    Three parallel hidden layers with ReLU → Sigmoid: σ(bias₂ + w₁'×ReLU₁ + w₂'×ReLU₂ + w₃'×ReLU₃) = ŷ
+                </div>
+                <div class="network-diagram">
+x₀ → [w₁] → ⊕ → ReLU₁ ┐
+             ↑          ├→ ⊕
+          bias₁ ────┘   └→ σ → ŷ
+                        ├→ ⊕
+x₁ → [w₂] → ⊕ → ReLU₂ ┤
+             ↑          └→ σ → ŷ
+          bias₁ ────┐  
+                        ├→ ⊕
+x₂ → [w₃] → ⊕ → ReLU₃ ┤  └→ σ → ŷ
+             ↑          └→
+          bias₁ ────┘  
+                bias₂
+                </div>
+                <div class="inputs-section">
+                    <div class="input-group">
+                        <label class="input-label">Hidden Layer - Bias:</label>
+                        <input type="number" class="network6-bias1" step="0.01" min="0" max="1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input 1 (x₀) & Weight 1 (w₁):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₁</label>
+                                <input type="number" class="network6-w1" step="0.01" min="0" max="1" value="0.3">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">x₀</label>
+                                <input type="number" class="network6-x0" step="0.01" min="0" max="1" value="0.6">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input 2 (x₁) & Weight 2 (w₂):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₂</label>
+                                <input type="number" class="network6-w2" step="0.01" min="0" max="1" value="0.4">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">x₁</label>
+                                <input type="number" class="network6-x1" step="0.01" min="0" max="1" value="0.5">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Input 3 (x₂) & Weight 3 (w₃):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₃</label>
+                                <input type="number" class="network6-w3" step="0.01" min="0" max="1" value="0.2">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">x₂</label>
+                                <input type="number" class="network6-x2" step="0.01" min="0" max="1" value="0.9">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output Layer - Bias:</label>
+                        <input type="number" class="network6-bias2" step="0.01" min="0" max="1" value="0.3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output Weights (w₁', w₂', w₃'):</label>
+                        <div class="input-row">
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₁'</label>
+                                <input type="number" class="network6-w1p" step="0.01" min="0" max="1" value="0.2">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₂'</label>
+                                <input type="number" class="network6-w2p" step="0.01" min="0" max="1" value="0.5">
+                            </div>
+                            <div class="input-item">
+                                <label style="font-size: 12px; color: #999;">w₃'</label>
+                                <input type="number" class="network6-w3p" step="0.01" min="0" max="1" value="0.3">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Output (ŷ):</label>
+                        <input type="text" class="network6-output" readonly>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="calculateNetwork6()">Calculate</button>
+                    <button class="reveal-btn" onclick="revealNetwork6()">Reveal Answer</button>
+                    <button class="reset-btn" onclick="resetNetwork6()">Reset</button>
+                </div>
+                <div class="answer-section" id="answer6">
+                    <div class="answer-title">Solution:</div>
+                    <div class="calculation-steps" id="steps6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function sigmoid(x) {
+            return 1 / (1 + Math.exp(-x));
+        }
+
+        function relu(x) {
+            return Math.max(0, x);
+        }
+
+        function roundTo(num, decimals) {
+            return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+        }
+
+        // Network 1: Simple Linear
+        function calculateNetwork1() {
+            const bias = parseFloat(document.querySelector('.network1-bias').value);
+            const weight = parseFloat(document.querySelector('.network1-weight').value);
+            const x0 = parseFloat(document.querySelector('.network1-x0').value);
+
+            const z = bias + (weight * x0);
+            const result = roundTo(z, 4);
+
+            document.querySelector('.network1-output').value = result;
+            document.getElementById('answer1').classList.add('visible');
+            document.getElementById('steps1').innerHTML = `
+                <div class="step">Step 1: Identify inputs</div>
+                <div class="step">bias = ${bias}</div>
+                <div class="step">weight (w) = ${weight}</div>
+                <div class="step">x₀ = ${x0}</div>
+                <div class="step">Step 2: Calculate: ŷ = bias + (w × x₀)</div>
+                <div class="step">ŷ = ${bias} + (${weight} × ${x0})</div>
+                <div class="step">ŷ = ${bias} + ${roundTo(weight * x0, 4)}</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork1() {
+            calculateNetwork1();
+        }
+
+        function resetNetwork1() {
+            document.querySelector('.network1-bias').value = '0.5';
+            document.querySelector('.network1-weight').value = '0.3';
+            document.querySelector('.network1-x0').value = '0.7';
+            document.querySelector('.network1-output').value = '';
+            document.getElementById('answer1').classList.remove('visible');
+        }
+
+        // Network 2: Two Inputs
+        function calculateNetwork2() {
+            const bias = parseFloat(document.querySelector('.network2-bias').value);
+            const w1 = parseFloat(document.querySelector('.network2-w1').value);
+            const x0 = parseFloat(document.querySelector('.network2-x0').value);
+            const w2 = parseFloat(document.querySelector('.network2-w2').value);
+            const x1 = parseFloat(document.querySelector('.network2-x1').value);
+
+            const term1 = w1 * x0;
+            const term2 = w2 * x1;
+            const z = bias + term1 + term2;
+            const result = roundTo(z, 4);
+
+            document.querySelector('.network2-output').value = result;
+            document.getElementById('answer2').classList.add('visible');
+            document.getElementById('steps2').innerHTML = `
+                <div class="step">Step 1: Identify inputs</div>
+                <div class="step">bias = ${bias}, w₁ = ${w1}, x₀ = ${x0}</div>
+                <div class="step">w₂ = ${w2}, x₁ = ${x1}</div>
+                <div class="step">Step 2: Calculate: ŷ = bias + (w₁ × x₀) + (w₂ × x₁)</div>
+                <div class="step">ŷ = ${bias} + (${w1} × ${x0}) + (${w2} × ${x1})</div>
+                <div class="step">ŷ = ${bias} + ${roundTo(term1, 4)} + ${roundTo(term2, 4)}</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork2() {
+            calculateNetwork2();
+        }
+
+        function resetNetwork2() {
+            document.querySelector('.network2-bias').value = '0.5';
+            document.querySelector('.network2-w1').value = '0.3';
+            document.querySelector('.network2-x0').value = '0.6';
+            document.querySelector('.network2-w2').value = '0.4';
+            document.querySelector('.network2-x1').value = '0.8';
+            document.querySelector('.network2-output').value = '';
+            document.getElementById('answer2').classList.remove('visible');
+        }
+
+        // Network 3: Sigmoid
+        function calculateNetwork3() {
+            const bias = parseFloat(document.querySelector('.network3-bias').value);
+            const weight = parseFloat(document.querySelector('.network3-weight').value);
+            const x0 = parseFloat(document.querySelector('.network3-x0').value);
+
+            const z = bias + (weight * x0);
+            const sig = sigmoid(z);
+            const result = roundTo(sig, 4);
+
+            document.querySelector('.network3-output').value = result;
+            document.getElementById('answer3').classList.add('visible');
+            document.getElementById('steps3').innerHTML = `
+                <div class="step">Step 1: Identify inputs</div>
+                <div class="step">bias = ${bias}, w = ${weight}, x₀ = ${x0}</div>
+                <div class="step">Step 2: Calculate z = bias + (w × x₀)</div>
+                <div class="step">z = ${bias} + (${weight} × ${x0})</div>
+                <div class="step">z = ${roundTo(z, 4)}</div>
+                <div class="step">Step 3: Apply Sigmoid: ŷ = σ(z) = 1 / (1 + e^(-z))</div>
+                <div class="step">ŷ = 1 / (1 + e^(-${roundTo(z, 4)}))</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork3() {
+            calculateNetwork3();
+        }
+
+        function resetNetwork3() {
+            document.querySelector('.network3-bias').value = '0.5';
+            document.querySelector('.network3-weight').value = '0.3';
+            document.querySelector('.network3-x0').value = '0.7';
+            document.querySelector('.network3-output').value = '';
+            document.getElementById('answer3').classList.remove('visible');
+        }
+
+        // Network 4: ReLU
+        function calculateNetwork4() {
+            const bias = parseFloat(document.querySelector('.network4-bias').value);
+            const weight = parseFloat(document.querySelector('.network4-weight').value);
+            const x0 = parseFloat(document.querySelector('.network4-x0').value);
+
+            const z = bias + (weight * x0);
+            const rel = relu(z);
+            const result = roundTo(rel, 4);
+
+            document.querySelector('.network4-output').value = result;
+            document.getElementById('answer4').classList.add('visible');
+            document.getElementById('steps4').innerHTML = `
+                <div class="step">Step 1: Identify inputs</div>
+                <div class="step">bias = ${bias}, w = ${weight}, x₀ = ${x0}</div>
+                <div class="step">Step 2: Calculate z = bias + (w × x₀)</div>
+                <div class="step">z = ${bias} + (${weight} × ${x0})</div>
+                <div class="step">z = ${roundTo(z, 4)}</div>
+                <div class="step">Step 3: Apply ReLU: ŷ = max(0, z)</div>
+                <div class="step">ŷ = max(0, ${roundTo(z, 4)})</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork4() {
+            calculateNetwork4();
+        }
+
+        function resetNetwork4() {
+            document.querySelector('.network4-bias').value = '0.5';
+            document.querySelector('.network4-weight').value = '0.3';
+            document.querySelector('.network4-x0').value = '0.7';
+            document.querySelector('.network4-output').value = '';
+            document.getElementById('answer4').classList.remove('visible');
+        }
+
+        // Network 5: ReLU then Sigmoid
+        function calculateNetwork5() {
+            const bias1 = parseFloat(document.querySelector('.network5-bias1').value);
+            const w1 = parseFloat(document.querySelector('.network5-w1').value);
+            const x0 = parseFloat(document.querySelector('.network5-x0').value);
+            const bias2 = parseFloat(document.querySelector('.network5-bias2').value);
+            const w2 = parseFloat(document.querySelector('.network5-w2').value);
+
+            const z1 = bias1 + (w1 * x0);
+            const hidden = relu(z1);
+            const z2 = bias2 + (w2 * hidden);
+            const output = sigmoid(z2);
+            const result = roundTo(output, 4);
+
+            document.querySelector('.network5-output').value = result;
+            document.getElementById('answer5').classList.add('visible');
+            document.getElementById('steps5').innerHTML = `
+                <div class="step">Step 1: Identify inputs</div>
+                <div class="step">Layer 1: bias₁ = ${bias1}, w₁ = ${w1}, x₀ = ${x0}</div>
+                <div class="step">Layer 2: bias₂ = ${bias2}, w₂ = ${w2}</div>
+                <div class="step">Step 2: Calculate Layer 1 - z₁ = bias₁ + (w₁ × x₀)</div>
+                <div class="step">z₁ = ${bias1} + (${w1} × ${x0}) = ${roundTo(z1, 4)}</div>
+                <div class="step">Step 3: Apply ReLU - hidden = max(0, z₁)</div>
+                <div class="step">hidden = max(0, ${roundTo(z1, 4)}) = ${roundTo(hidden, 4)}</div>
+                <div class="step">Step 4: Calculate Layer 2 - z₂ = bias₂ + (w₂ × hidden)</div>
+                <div class="step">z₂ = ${bias2} + (${w2} × ${roundTo(hidden, 4)}) = ${roundTo(z2, 4)}</div>
+                <div class="step">Step 5: Apply Sigmoid - ŷ = σ(z₂)</div>
+                <div class="step">ŷ = 1 / (1 + e^(-${roundTo(z2, 4)}))</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork5() {
+            calculateNetwork5();
+        }
+
+        function resetNetwork5() {
+            document.querySelector('.network5-bias1').value = '0.5';
+            document.querySelector('.network5-w1').value = '0.3';
+            document.querySelector('.network5-x0').value = '0.7';
+            document.querySelector('.network5-bias2').value = '0.4';
+            document.querySelector('.network5-w2').value = '0.6';
+            document.querySelector('.network5-output').value = '';
+            document.getElementById('answer5').classList.remove('visible');
+        }
+
+        // Network 6: Three Parallel ReLU then Sigmoid
+        function calculateNetwork6() {
+            const bias1 = parseFloat(document.querySelector('.network6-bias1').value);
+            const w1 = parseFloat(document.querySelector('.network6-w1').value);
+            const x0 = parseFloat(document.querySelector('.network6-x0').value);
+            const w2 = parseFloat(document.querySelector('.network6-w2').value);
+            const x1 = parseFloat(document.querySelector('.network6-x1').value);
+            const w3 = parseFloat(document.querySelector('.network6-w3').value);
+            const x2 = parseFloat(document.querySelector('.network6-x2').value);
+            const bias2 = parseFloat(document.querySelector('.network6-bias2').value);
+            const w1p = parseFloat(document.querySelector('.network6-w1p').value);
+            const w2p = parseFloat(document.querySelector('.network6-w2p').value);
+            const w3p = parseFloat(document.querySelector('.network6-w3p').value);
+
+            const z1_1 = bias1 + (w1 * x0);
+            const hidden1 = relu(z1_1);
+            const z1_2 = bias1 + (w2 * x1);
+            const hidden2 = relu(z1_2);
+            const z1_3 = bias1 + (w3 * x2);
+            const hidden3 = relu(z1_3);
+
+            const z2 = bias2 + (w1p * hidden1) + (w2p * hidden2) + (w3p * hidden3);
+            const output = sigmoid(z2);
+            const result = roundTo(output, 4);
+
+            document.querySelector('.network6-output').value = result;
+            document.getElementById('answer6').classList.add('visible');
+            document.getElementById('steps6').innerHTML = `
+                <div class="step">Step 1: Calculate Hidden Layer 1</div>
+                <div class="step">z₁ = bias₁ + (w₁ × x₀) = ${bias1} + (${w1} × ${x0}) = ${roundTo(z1_1, 4)}</div>
+                <div class="step">ReLU₁ = max(0, ${roundTo(z1_1, 4)}) = ${roundTo(hidden1, 4)}</div>
+                <div class="step">Step 2: Calculate Hidden Layer 2</div>
+                <div class="step">z₂ = bias₁ + (w₂ × x₁) = ${bias1} + (${w2} × ${x1}) = ${roundTo(z1_2, 4)}</div>
+                <div class="step">ReLU₂ = max(0, ${roundTo(z1_2, 4)}) = ${roundTo(hidden2, 4)}</div>
+                <div class="step">Step 3: Calculate Hidden Layer 3</div>
+                <div class="step">z₃ = bias₁ + (w₃ × x₂) = ${bias1} + (${w3} × ${x2}) = ${roundTo(z1_3, 4)}</div>
+                <div class="step">ReLU₃ = max(0, ${roundTo(z1_3, 4)}) = ${roundTo(hidden3, 4)}</div>
+                <div class="step">Step 4: Calculate Output Layer</div>
+                <div class="step">z = bias₂ + (w₁' × ReLU₁) + (w₂' × ReLU₂) + (w₃' × ReLU₃)</div>
+                <div class="step">z = ${bias2} + (${w1p} × ${roundTo(hidden1, 4)}) + (${w2p} × ${roundTo(hidden2, 4)}) + (${w3p} × ${roundTo(hidden3, 4)})</div>
+                <div class="step">z = ${bias2} + ${roundTo(w1p * hidden1, 4)} + ${roundTo(w2p * hidden2, 4)} + ${roundTo(w3p * hidden3, 4)}</div>
+                <div class="step">z = ${roundTo(z2, 4)}</div>
+                <div class="step">Step 5: Apply Sigmoid</div>
+                <div class="step">ŷ = σ(z) = 1 / (1 + e^(-${roundTo(z2, 4)}))</div>
+                <div class="final-answer">ŷ = ${result}</div>
+            `;
+        }
+
+        function revealNetwork6() {
+            calculateNetwork6();
+        }
+
+        function resetNetwork6() {
+            document.querySelector('.network6-bias1').value = '0.5';
+            document.querySelector('.network6-w1').value = '0.3';
+            document.querySelector('.network6-x0').value = '0.6';
+            document.querySelector('.network6-w2').value = '0.4';
+            document.querySelector('.network6-x1').value = '0.5';
+            document.querySelector('.network6-w3').value = '0.2';
+            document.querySelector('.network6-x2').value = '0.9';
+            document.querySelector('.network6-bias2').value = '0.3';
+            document.querySelector('.network6-w1p').value = '0.2';
+            document.querySelector('.network6-w2p').value = '0.5';
+            document.querySelector('.network6-w3p').value = '0.3';
+            document.querySelector('.network6-output').value = '';
+            document.getElementById('answer6').classList.remove('visible');
+        }
+    </script>
+</body>
+</html>
