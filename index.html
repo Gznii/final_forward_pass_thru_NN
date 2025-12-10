@@ -360,22 +360,19 @@
                   
                   <!-- x0 circle -->
                   <circle cx="60" cy="140" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
-                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀ [w]</text>
-                  
-                  <!-- addition circle -->
-                  <circle cx="200" cy="90" r="35" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
-                  <text x="200" y="95" text-anchor="middle" font-size="14" font-weight="bold">+</text>
+                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀</text>
                   
                   <!-- output circle -->
                   <circle cx="320" cy="90" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
                   <text x="320" y="100" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
                   
-                  <!-- lines from inputs to addition -->
-                  <line x1="95" y1="40" x2="165" y2="70" stroke="#333" stroke-width="2"/>
-                  <line x1="95" y1="140" x2="165" y2="110" stroke="#333" stroke-width="2"/>
+                  <!-- line from bias to output -->
+                  <line x1="95" y1="40" x2="285" y2="75" stroke="#333" stroke-width="2"/>
+                  <text x="180" y="55" font-size="11" fill="#666">w₀=1</text>
                   
-                  <!-- line from addition to output -->
-                  <line x1="235" y1="90" x2="285" y2="90" stroke="#333" stroke-width="2"/>
+                  <!-- line from x0 to output -->
+                  <line x1="95" y1="140" x2="285" y2="105" stroke="#333" stroke-width="2"/>
+                  <text x="180" y="130" font-size="11" fill="#666">w₁</text>
                 </svg>
                 <div class="inputs-section">
                     <div class="input-group">
@@ -422,27 +419,27 @@
                   
                   <!-- x0 circle -->
                   <circle cx="60" cy="120" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
-                  <text x="60" y="125" text-anchor="middle" font-size="12" font-weight="bold">x₀ [w₁]</text>
+                  <text x="60" y="125" text-anchor="middle" font-size="12" font-weight="bold">x₀</text>
                   
                   <!-- x1 circle -->
                   <circle cx="60" cy="200" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
-                  <text x="60" y="205" text-anchor="middle" font-size="12" font-weight="bold">x₁ [w₂]</text>
-                  
-                  <!-- addition circle -->
-                  <circle cx="200" cy="120" r="35" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
-                  <text x="200" y="125" text-anchor="middle" font-size="14" font-weight="bold">+</text>
+                  <text x="60" y="205" text-anchor="middle" font-size="12" font-weight="bold">x₁</text>
                   
                   <!-- output circle -->
                   <circle cx="320" cy="120" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
                   <text x="320" y="130" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
                   
-                  <!-- lines from inputs to addition -->
-                  <line x1="95" y1="40" x2="165" y2="100" stroke="#333" stroke-width="2"/>
-                  <line x1="95" y1="120" x2="165" y2="120" stroke="#333" stroke-width="2"/>
-                  <line x1="95" y1="200" x2="165" y2="140" stroke="#333" stroke-width="2"/>
+                  <!-- line from bias to output -->
+                  <line x1="95" y1="40" x2="285" y2="100" stroke="#333" stroke-width="2"/>
+                  <text x="180" y="60" font-size="11" fill="#666">w₀=1</text>
                   
-                  <!-- line from addition to output -->
-                  <line x1="235" y1="120" x2="285" y2="120" stroke="#333" stroke-width="2"/>
+                  <!-- line from x0 to output -->
+                  <line x1="95" y1="120" x2="285" y2="120" stroke="#333" stroke-width="2"/>
+                  <text x="180" y="110" font-size="11" fill="#666">w₁</text>
+                  
+                  <!-- line from x1 to output -->
+                  <line x1="95" y1="200" x2="285" y2="140" stroke="#333" stroke-width="2"/>
+                  <text x="180" y="170" font-size="11" fill="#666">w₂</text>
                 </svg>
                 <div class="inputs-section">
                     <div class="input-group">
@@ -500,36 +497,33 @@
                 <div class="network-description">
                     Sigmoid activation: σ(bias + w×x₀) = ŷ
                 </div>
-                <svg class="network-diagram" viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg">
+                <svg class="network-diagram" viewBox="0 0 550 250" xmlns="http://www.w3.org/2000/svg">
                   <!-- bias circle -->
                   <circle cx="60" cy="40" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
                   <text x="60" y="45" text-anchor="middle" font-size="12" font-weight="bold">bias</text>
                   
                   <!-- x0 circle -->
                   <circle cx="60" cy="140" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
-                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀ [w]</text>
-                  
-                  <!-- addition circle -->
-                  <circle cx="180" cy="90" r="35" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
-                  <text x="180" y="95" text-anchor="middle" font-size="14" font-weight="bold">+</text>
+                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀</text>
                   
                   <!-- sigmoid circle -->
                   <circle cx="300" cy="90" r="40" fill="#fce4ec" stroke="#e91e63" stroke-width="2"/>
                   <text x="300" y="98" text-anchor="middle" font-size="11" font-weight="bold">sigmoid</text>
                   
                   <!-- output circle -->
-                  <circle cx="420" cy="90" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
-                  <text x="420" y="100" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
+                  <circle cx="450" cy="90" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+                  <text x="450" y="100" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
                   
-                  <!-- lines from inputs to addition -->
-                  <line x1="95" y1="40" x2="145" y2="70" stroke="#333" stroke-width="2"/>
-                  <line x1="95" y1="140" x2="145" y2="110" stroke="#333" stroke-width="2"/>
+                  <!-- line from bias to sigmoid -->
+                  <line x1="95" y1="40" x2="260" y2="75" stroke="#333" stroke-width="2"/>
+                  <text x="160" y="55" font-size="11" fill="#666">w₀=1</text>
                   
-                  <!-- line from addition to sigmoid -->
-                  <line x1="215" y1="90" x2="260" y2="90" stroke="#333" stroke-width="2"/>
+                  <!-- line from x0 to sigmoid -->
+                  <line x1="95" y1="140" x2="260" y2="105" stroke="#333" stroke-width="2"/>
+                  <text x="160" y="130" font-size="11" fill="#666">w</text>
                   
                   <!-- line from sigmoid to output -->
-                  <line x1="340" y1="90" x2="385" y2="90" stroke="#333" stroke-width="2"/>
+                  <line x1="340" y1="90" x2="415" y2="90" stroke="#333" stroke-width="2"/>
                 </svg>
                 <div class="inputs-section">
                     <div class="input-group">
@@ -569,36 +563,33 @@
                 <div class="network-description">
                     ReLU activation: max(0, bias + w×x₀) = ŷ
                 </div>
-                <svg class="network-diagram" viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg">
+                <svg class="network-diagram" viewBox="0 0 550 250" xmlns="http://www.w3.org/2000/svg">
                   <!-- bias circle -->
                   <circle cx="60" cy="40" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
                   <text x="60" y="45" text-anchor="middle" font-size="12" font-weight="bold">bias</text>
                   
                   <!-- x0 circle -->
                   <circle cx="60" cy="140" r="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
-                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀ [w]</text>
-                  
-                  <!-- addition circle -->
-                  <circle cx="180" cy="90" r="35" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
-                  <text x="180" y="95" text-anchor="middle" font-size="14" font-weight="bold">+</text>
+                  <text x="60" y="145" text-anchor="middle" font-size="12" font-weight="bold">x₀</text>
                   
                   <!-- ReLU circle -->
                   <circle cx="300" cy="90" r="40" fill="#c8e6c9" stroke="#43a047" stroke-width="2"/>
                   <text x="300" y="98" text-anchor="middle" font-size="11" font-weight="bold">ReLU</text>
                   
                   <!-- output circle -->
-                  <circle cx="420" cy="90" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
-                  <text x="420" y="100" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
+                  <circle cx="450" cy="90" r="35" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+                  <text x="450" y="100" text-anchor="middle" font-size="12" font-weight="bold">ŷ</text>
                   
-                  <!-- lines from inputs to addition -->
-                  <line x1="95" y1="40" x2="145" y2="70" stroke="#333" stroke-width="2"/>
-                  <line x1="95" y1="140" x2="145" y2="110" stroke="#333" stroke-width="2"/>
+                  <!-- line from bias to ReLU -->
+                  <line x1="95" y1="40" x2="260" y2="75" stroke="#333" stroke-width="2"/>
+                  <text x="160" y="55" font-size="11" fill="#666">w₀=1</text>
                   
-                  <!-- line from addition to ReLU -->
-                  <line x1="215" y1="90" x2="260" y2="90" stroke="#333" stroke-width="2"/>
+                  <!-- line from x0 to ReLU -->
+                  <line x1="95" y1="140" x2="260" y2="105" stroke="#333" stroke-width="2"/>
+                  <text x="160" y="130" font-size="11" fill="#666">w</text>
                   
                   <!-- line from ReLU to output -->
-                  <line x1="340" y1="90" x2="385" y2="90" stroke="#333" stroke-width="2"/>
+                  <line x1="340" y1="90" x2="415" y2="90" stroke="#333" stroke-width="2"/>
                 </svg>
                 <div class="inputs-section">
                     <div class="input-group">
